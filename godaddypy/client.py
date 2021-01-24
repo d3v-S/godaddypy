@@ -18,7 +18,7 @@ __all__ = ['Client', 'BadResponse']
 
 GODADDY_API_BASE_URL = 'https://api.godaddy.com/'
 GODADDY_API_VERSION = 'v1'
-
+GODADDY_API_VERSION_V2 = 'v2'
 
 class Client(object):
     """The GoDaddyPy Client.
@@ -46,11 +46,16 @@ class Client(object):
 
         # Templates
         self.API_TEMPLATE = urljoin(api_base_url, api_version)
+        self.API_TEMPLATE_V2 = urljoin(api_base_url, GODADDY_API_VERSION_V2)
+        
         self.DOMAINS = '/domains'
         self.DOMAIN_INFO = '/domains/{domain}'
         self.RECORDS = '/domains/{domain}/records'
         self.RECORDS_TYPE = '/domains/{domain}/records/{type}'
         self.RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
+        # v2 -> getting forward info.
+        # fqdn == domain. customerID -> extract it from request.
+        self.FORWARD_INFO = '/customers/{customerId}/domains/forwards/{fqdn}'
 
         self.account = account
 
@@ -332,6 +337,34 @@ class Client(object):
 
         # If we didn't get any exceptions, return True to let the user know
         return True
+    
+    # https://developer.godaddy.com/doc/endpoint/domains#/
+    # look here for doc.
+    def get_forwarding_info(self, customerID, domain):
+        """Get forwarding information for domain specified.
+        
+        :param customerID: customer_id extracted from header.
+        :param domain: domain which is being forwarded.
+        """
+        
+        print("CustomerID can be extracted from REQUEST header, by inspection in browser")
+        url = self.API_TEMPLATE_V2 +  self.FORWARD_INFO.format(fqdn=domain, customerId=customerID)
+        data = self._get_json_from_response(url)
+        return data
+    
+    def set_forwarding_info(self, customerID, domain, forward_url):
+        """Set forwarding information for domain.
+        
+        :param customerID: customer_id extracted from header.
+        :param domain: domain which is being forwarded.
+        :param forward_url: url where this domain is going to be forwarded.
+        """
+        
+        print("CustomerID can be extracted from REQUEST header, by inspection in browser")
+        url = self.API_TEMPLATE_V2 +  self.FORWARD_INFO.format(fqdn=domain, customerId=customerID)
+        body = {'type':'REDIRECT_PERMANENT', 'url':str(forward_url)}
+        self._put(url, json=body)
+        
 
 
 class BadResponse(Exception):

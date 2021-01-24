@@ -16,6 +16,13 @@ Migrated from @ https://github.com/eXamadeus-zz/godaddypy
 
 This concept was spawned from observerss' pygodaddy @ https://github.com/observerss/pygodaddy.
 
+
+Changelog:
+-----------
+* added support for getting forward info.
+* added support for setting forward info without mask.
+
+
 Setup
 --------
 
@@ -67,4 +74,10 @@ Examples
     >>>
     >>> client.delete_records('apple.com', name='test')
     True
+    >>> customerID = "abcd-efgh-ijkl-mnop"
+    >>> client.get_forwarding_info(customerID, "apple.com")
+    [{'fqdn': 'apple.com', 'mask': {}, 'type': 'PERMANENT_REDIRECT', 'url': 'http://f4edf2d46d1a.ngrok.io'}]
+    >>> client.set_forwarding_info(cusotmerID, "apple.com", "http://banana.com")
+    >>> client.get_forwarding_info(customerID, "apple.com")
+    [{'fqdn': 'stutiajmera.com', 'mask': {}, 'type': 'PERMANENT_REDIRECT', 'url': 'http://banana.com'}]
 ..
